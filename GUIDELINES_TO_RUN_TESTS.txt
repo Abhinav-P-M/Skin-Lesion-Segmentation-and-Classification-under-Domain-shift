@@ -1,0 +1,116 @@
+================================================================================
+  CROSS-DATASET SKIN LESION SEGMENTATION & DANN CLASSIFICATION UNDER DOMAIN SHIFT
+                     GUIDELINES TO RUN TESTS & APPLICATION
+================================================================================
+
+PROJECT OVERVIEW:
+This project investigates cross-dataset domain shift in skin cancer diagnosis using:
+- U-Net for Lesion Segmentation (Dice: 81.14%, IoU: 68.39%)
+- Baseline Conventional CNN (Source AUROC: 71.84%, Target AUROC: 64.06%, Drop: 7.78%)
+- Proposed DANN with Gradient Reversal Layer (Source AUROC: 76.00%, Target AUROC: 82.36%)
+- 7 official HAM10000 disease categories (akiec, bcc, bkl, df, mel, nv, vasc)
+
+--------------------------------------------------------------------------------
+1. PREREQUISITES & INSTALLATION
+--------------------------------------------------------------------------------
+Ensure you have Python 3.10+ installed.
+
+Open PowerShell or Command Prompt, navigate to the extracted folder, and install
+the required dependencies:
+
+    cd path\to\skin_lesion_dann_domain_shift
+    pip install -r requirements.txt
+
+Core dependencies include:
+- torch (PyTorch 2.0+)
+- torchvision
+- streamlit (Streamlit 1.25+)
+- numpy, scipy, scikit-learn, matplotlib, pillow
+
+--------------------------------------------------------------------------------
+2. HOW TO RUN THE TEST SUITE
+--------------------------------------------------------------------------------
+A comprehensive unit and integration test suite is located in:
+    tests/test_pipeline.py
+
+To run all tests using Python's built-in unittest framework (no external runner needed):
+
+    python -m unittest tests/test_pipeline.py
+
+To run tests with detailed verbosity:
+
+    python -m unittest tests/test_pipeline.py -v
+
+--------------------------------------------------------------------------------
+3. WHAT THE TESTS VERIFY
+--------------------------------------------------------------------------------
+The test suite validates 7 critical components:
+
+[1] test_unet_forward:
+    Verifies that the U-Net model accepts (B, 3, H, W) images, performs encoder-decoder
+    operations with skip connections, and produces (B, 1, H, W) probability masks in [0, 1].
+
+[2] test_cnn_forward:
+    Verifies that the conventional CNN baseline outputs 7-class logits and that softmax
+    probabilities sum to 1.0.
+
+[3] test_dann_and_grl:
+    Verifies that the DANN architecture outputs both 7-class disease logits and 2-class
+    domain logits. Confirms that backward propagation through the Gradient Reversal Layer
+    (GRL) functions properly, and tests the dynamic lambda scheduling formula:
+        lambda(p) = 2 / (1 + exp(-gamma * p)) - 1
+
+[4] test_domain_transforms:
+    Validates physical clinical domain shift simulation (color temperature shift,
+    vignetting, contrast attenuation, sensor noise).
+
+[5] test_segmentation_metrics:
+    Checks the mathematical accuracy of Dice Score and IoU (Jaccard Index) calculations.
+
+[6] test_classification_metrics:
+    Verifies Macro-AUROC, per-class AUROC, Sensitivity, Specificity, and Confusion Matrix
+    generation against ground truth.
+
+[7] test_gradcam:
+    Hooks into the final convolutional layer (layer4) and verifies heatmap generation
+    and alpha-blended visualization for explainability.
+
+--------------------------------------------------------------------------------
+4. HOW TO RUN THE STREAMLIT WEB DASHBOARD
+--------------------------------------------------------------------------------
+To launch the interactive 7-page medical AI dashboard:
+
+    streamlit run app.py
+
+Then open your web browser and go to:
+    http://localhost:8501
+
+Available Dashboard Modules:
+- Page 1: Overview & Problem (Clinical domain shift context and key stats)
+- Page 2: Dataset Explorer (HAM10000 7-class distribution & segmentation dataset)
+- Page 3: Live Image Analysis (U-Net segmentation mask overlay + CNN vs DANN cards)
+- Page 4: CNN vs DANN Benchmark (Cross-domain comparison table & degradation charts)
+- Page 5: Segmentation Evaluation (Mean Dice, Mean IoU, 4-column qualitative comparisons)
+- Page 6: Model Explainability (Grad-CAM heatmaps comparing CNN vs DANN attention)
+- Page 7: Research Summary & Pitch (Hypothesis, takeaways, and clinical limitations)
+
+--------------------------------------------------------------------------------
+5. HOW TO RETRAIN ALL MODELS (OPTIONAL)
+--------------------------------------------------------------------------------
+Pre-trained model checkpoints are already included in:
+    models/checkpoints/unet/best_model.pth
+    models/checkpoints/cnn/best_model.pth
+    models/checkpoints/dann/best_model.pth
+    models/checkpoints/benchmark_results.json
+
+If you wish to retrain all models from scratch and regenerate the benchmark numbers:
+
+    python training/train_all.py
+
+--------------------------------------------------------------------------------
+6. MEDICAL SAFETY DISCLAIMER
+--------------------------------------------------------------------------------
+This project is an investigational research prototype for domain adaptation evaluation.
+Predictions are intended strictly for educational and scientific research purposes and
+should NEVER be used as a substitute for certified dermatological examination or biopsy.
+================================================================================
