@@ -1,4 +1,4 @@
-https://drive.google.com/file/d/1EgMi2_ljL-mQyNkhSSkSE3gLBBBsWLVS/view?usp=drive_link  This is the model file 
+https://drive.google.com/file/d/1EgMi2_ljL-mQyNkhSSkSE3gLBBBsWLVS/view?usp=drive_link  This is the model file ,please paste this inside a folder named pretrained inside the folder model,inside the main project folder.
 # Cross-Dataset Skin Lesion Segmentation and Classification Under Domain Shift Using DANN
 
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
